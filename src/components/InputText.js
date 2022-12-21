@@ -18,6 +18,7 @@ function InputText(props) {
         value={state}
         onChange={handleOnChange}
         onBlur={onBlur}
+        autoComplete="off"
       ></input>
       <small className="text-danger">
         {error ? (

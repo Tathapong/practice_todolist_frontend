@@ -1,5 +1,5 @@
-exports.checkUsername = (data, usernameList) => {
-  const username = data.toLowerCase();
+exports.checkUsername = (usernameInput, usernameList) => {
+  const username = usernameInput.toLowerCase();
 
   const usernameRegex = /(^[a-z0-9]+[a-z]+[\w-.]+)([^\w-.]*)/;
   const result = username.match(usernameRegex);
