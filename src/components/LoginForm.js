@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import React from "react";
-
+import Cookies from "universal-cookie";
 import ChbRememberMe from "./ChbRemeberMe";
 
 function LoginForm() {
@@ -16,6 +16,8 @@ function LoginForm() {
   const [btnDisabled, setBtnDisabled] = useState(false);
 
   const navigate = useNavigate();
+  const cookies = new Cookies();
+
   const onBlurUsername = () => {
     if (username.length === 0) setError({ ...error, username: "Please enter your username" });
     else setError({ ...error, username: undefined });
@@ -33,16 +35,21 @@ function LoginForm() {
         if (res.data.login) {
           setBtnDisabled(true);
           setError2("");
-          const id = res.data.id;
-          if (remember) localStorage.setItem("token", res.data.token);
+          if (remember) {
+            cookies.set("todo_token", res.data.token, { maxAge: 60 * 60 * 24 * 365 });
+            localStorage.setItem("token", res.data.token);
+          } else {
+            cookies.set("todo_token", res.data.token);
+          }
           setBtnDisabled(false);
-          navigate("/todolist/" + id);
+          navigate("/todolist");
         } else {
           setError2("Username or password wrong!");
         }
       });
     }
   };
+
   return (
     <form className="w-50 mx-auto border rounded-3  border-primary p-5 mt-5" onSubmit={handleLogin}>
       <h3 className="mb-5 text-center bold">Login</h3>

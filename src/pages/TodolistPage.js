@@ -1,3 +1,4 @@
+import Header from "../components/header/Header";
 import TodoInput from "../components/todo-list/TodoInput";
 import Filter from "../components/filter/Filter";
 import PageLimit from "../components/page-limit/PageLimit";
@@ -9,6 +10,7 @@ function TodolistPage() {
   return (
     <TodoContextProvider>
       <div className="container max-w-xs w-50 pt-5">
+        <Header />
         <TodoInput />
         <Filter />
         <PageLimit />

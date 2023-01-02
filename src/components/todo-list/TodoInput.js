@@ -1,35 +1,28 @@
-import { useState, useContext } from 'react';
-import Button from '../ui/Button';
-import { TodoContext } from '../../contexts/TodoContext';
+import { useState, useContext } from "react";
+import Button from "../ui/Button";
+import { TodoContext } from "../../contexts/TodoContext";
 
 function TodoInput(props) {
-  const [todoInput, setTodoInput] = useState(props.title || '');
-  const [todoError, setTodoError] = useState('');
+  const [todoInput, setTodoInput] = useState(props.title || "");
+  const [todoError, setTodoError] = useState("");
 
   const ctx = useContext(TodoContext);
 
   const handleClickCreateBtn = () => {
     if (!todoInput) {
-      setTodoError('Title is required.');
+      setTodoError("Title is required.");
     } else {
       ctx.createTodo(todoInput);
-      setTodoError('');
-      setTodoInput('');
+      setTodoError("");
+      setTodoInput("");
     }
   };
 
   const handleClickUpdateBtn = () => {
     if (!todoInput) {
-      setTodoError('Title is required.');
+      setTodoError("Title is required.");
     } else {
-      // props.updateTodo(
-      //   { title: todoInput, completed: props.completed },
-      //   props.id
-      // );
-      ctx.updateTodo(
-        { title: todoInput, completed: props.completed },
-        props.id
-      );
+      ctx.updateTodo({ title: todoInput, completed: props.completed }, props.id);
       props.closeEditing();
     }
   };
@@ -39,10 +32,10 @@ function TodoInput(props) {
       <div className="input-group shadow">
         <input
           type="text"
-          className={`form-control ${todoError ? 'is-invalid' : ''}`}
+          className={`form-control ${todoError ? "is-invalid" : ""}`}
           placeholder="Enter new todo"
           value={todoInput}
-          onChange={event => setTodoInput(event.target.value)}
+          onChange={(event) => setTodoInput(event.target.value)}
         />
         {props.id ? (
           <Button color="primary" onClick={handleClickUpdateBtn}>
@@ -59,7 +52,7 @@ function TodoInput(props) {
             if (props.id) {
               props.closeEditing();
             } else {
-              setTodoInput('');
+              setTodoInput("");
             }
           }}
         >

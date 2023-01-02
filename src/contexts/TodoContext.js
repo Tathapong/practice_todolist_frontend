@@ -1,67 +1,77 @@
 import { createContext, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import checkToken from "../utilities/checkToken";
 
 const TodoContext = createContext();
 
 function TodoContextProvider(props) {
   const [todoList, setTodoList] = useState([]);
-  const { id } = useParams();
+  const navigate = useNavigate();
 
   const createTodo = (title) => {
-    axios
-      .post("http://localhost:8080/todos", { title, completed: false })
-      .then((res) => {
-        const newTodo = res.data.todo;
-        const newTodoList = [newTodo, ...todoList];
-        setTodoList(newTodoList);
+    checkToken()
+      .then(({ verify, userId }) => {
+        if (verify) {
+          axios
+            .post("http://localhost:8080/todolist", { title, userId })
+            .then((res) => {
+              const newTodo = res.data.todo;
+              const newTodoList = [newTodo, ...todoList];
+              setTodoList(newTodoList);
+            })
+            .catch((err) => console.log(err));
+        } else navigate("/login");
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   };
 
   const removeTodo = (id) => {
-    axios
-      .delete(`http://localhost:8080/todos/${id}`)
-      .then(() => {
-        const idx = todoList.findIndex((el) => el.id === id);
-        if (idx !== -1) {
-          const clonedTodoList = [...todoList];
-          clonedTodoList.splice(idx, 1);
-          setTodoList(clonedTodoList);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    checkToken().then(({ verify, userId }) => {
+      if (verify) {
+        axios
+          .delete("http://localhost:8080/todolist", { data: { id } })
+          .then((res) => {
+            const idx = todoList.findIndex((el) => el.id === id);
+            if (idx !== -1) {
+              const cloneTodoList = [...todoList];
+              cloneTodoList.splice(idx, 1);
+              setTodoList(cloneTodoList);
+            }
+          })
+          .catch((err) => console.log(err));
+      } else navigate("/login");
+    });
   };
 
   const updateTodo = (newValue, id) => {
-    axios
-      .put("http://localhost:8080/todos/" + id, newValue)
-      .then(() => {
-        const idx = todoList.findIndex((el) => el.id === id);
-        if (idx !== -1) {
-          const clonedTodoList = [...todoList];
-          clonedTodoList[idx] = { ...clonedTodoList[idx], ...newValue };
-          setTodoList(clonedTodoList);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    checkToken().then(({ verify, userId }) => {
+      if (verify) {
+        axios
+          .put("http://localhost:8080/todolist", { id, newValue })
+          .then((res) => {
+            const idx = todoList.findIndex((el) => el.id === id);
+            if (idx !== -1) {
+              const clonedTodoList = [...todoList];
+              clonedTodoList[idx] = { ...clonedTodoList[idx], ...newValue };
+              setTodoList(clonedTodoList);
+            }
+          })
+          .catch((err) => console.log(err));
+      } else navigate("/login");
+    });
   };
-
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/todolist/" + id)
-      .then((res) => {
-        setTodoList(res.data.todolist);
+    checkToken()
+      .then(({ verify, userId }) => {
+        if (verify) {
+          axios
+            .get("http://localhost:8080/todolist", { params: { userId } })
+            .then((res) => setTodoList(res.data.todolist))
+            .catch((err) => console.log(err));
+        } else navigate("/login");
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
   return (
