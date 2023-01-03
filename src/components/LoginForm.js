@@ -37,9 +37,10 @@ function LoginForm() {
           setError2("");
           if (remember) {
             cookies.set("todo_token", res.data.token, { maxAge: 60 * 60 * 24 * 365 });
-            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("todo_token", res.data.token);
           } else {
             cookies.set("todo_token", res.data.token);
+            localStorage.setItem("todo_token", res.data.token);
           }
           setBtnDisabled(false);
           navigate("/todolist");
