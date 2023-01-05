@@ -1,6 +1,6 @@
 import RegisterForm from "../components/RegisterForm";
 
-function RegisterPage() {
+function Register() {
   return (
     <>
       <RegisterForm />;
@@ -8,4 +8,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default Register;

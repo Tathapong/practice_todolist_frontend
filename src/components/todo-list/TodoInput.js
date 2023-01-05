@@ -1,12 +1,12 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import Button from "../ui/Button";
-import { TodoContext } from "../../contexts/TodoContext";
+import { useTodo } from "../../contexts/TodoContext";
 
 function TodoInput(props) {
   const [todoInput, setTodoInput] = useState(props.title || "");
   const [todoError, setTodoError] = useState("");
 
-  const ctx = useContext(TodoContext);
+  const ctx = useTodo();
 
   const handleClickCreateBtn = () => {
     if (!todoInput) {

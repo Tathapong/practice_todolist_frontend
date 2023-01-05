@@ -1,7 +1,6 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import checkToken from "../utilities/checkToken";
 
 const TodoContext = createContext();
 
@@ -9,69 +8,58 @@ function TodoContextProvider(props) {
   const [todoList, setTodoList] = useState([]);
   const navigate = useNavigate();
 
-  const createTodo = (title) => {
-    checkToken()
-      .then(({ verify, userId }) => {
-        if (verify) {
-          axios
-            .post("http://localhost:8080/todolist", { title, userId })
-            .then((res) => {
-              const newTodo = res.data.todo;
-              const newTodoList = [newTodo, ...todoList];
-              setTodoList(newTodoList);
-            })
-            .catch((err) => console.log(err));
-        } else navigate("/login");
-      })
-      .catch((err) => console.log(err));
+  const createTodo = async (title) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/todos",
+        { title },
+        { headers: { authorization: "Bearer " + localStorage.getItem("token") } }
+      );
+      const cloneTodoList = [...todoList];
+      const newTodolist = [res.data.todo, ...cloneTodoList];
+      setTodoList(newTodolist);
+    } catch (err) {
+      alert("Error create todo");
+    }
   };
 
-  const removeTodo = (id) => {
-    checkToken().then(({ verify, userId }) => {
-      if (verify) {
-        axios
-          .delete("http://localhost:8080/todolist", { data: { id } })
-          .then((res) => {
-            const idx = todoList.findIndex((el) => el.id === id);
-            if (idx !== -1) {
-              const cloneTodoList = [...todoList];
-              cloneTodoList.splice(idx, 1);
-              setTodoList(cloneTodoList);
-            }
-          })
-          .catch((err) => console.log(err));
-      } else navigate("/login");
-    });
+  const removeTodo = async (id) => {
+    try {
+      await axios.delete("http://localhost:8080/todos/" + id, {
+        headers: { authorization: "Bearer " + localStorage.getItem("token") }
+      });
+      const newTodoList = todoList.filter((item) => item.id !== id);
+      setTodoList(newTodoList);
+    } catch (err) {
+      alert("Error delete todo");
+    }
   };
 
   const updateTodo = (newValue, id) => {
-    checkToken().then(({ verify, userId }) => {
-      if (verify) {
-        axios
-          .put("http://localhost:8080/todolist", { id, newValue })
-          .then((res) => {
-            const idx = todoList.findIndex((el) => el.id === id);
-            if (idx !== -1) {
-              const clonedTodoList = [...todoList];
-              clonedTodoList[idx] = { ...clonedTodoList[idx], ...newValue };
-              setTodoList(clonedTodoList);
-            }
-          })
-          .catch((err) => console.log(err));
-      } else navigate("/login");
-    });
+    // checkToken().then(({ verify, userId }) => {
+    //   if (verify) {
+    //     axios
+    //       .put("http://localhost:8080/todolist", { id, newValue })
+    //       .then((res) => {
+    //         const idx = todoList.findIndex((el) => el.id === id);
+    //         if (idx !== -1) {
+    //           const clonedTodoList = [...todoList];
+    //           clonedTodoList[idx] = { ...clonedTodoList[idx], ...newValue };
+    //           setTodoList(clonedTodoList);
+    //         }
+    //       })
+    //       .catch((err) => console.log(err));
+    //   } else navigate("/login");
+    // });
   };
   useEffect(() => {
-    checkToken()
-      .then(({ verify, userId }) => {
-        if (verify) {
-          axios
-            .get("http://localhost:8080/todolist", { params: { userId } })
-            .then((res) => setTodoList(res.data.todolist))
-            .catch((err) => console.log(err));
-        } else navigate("/login");
+    axios
+      .get("http://localhost:8080/todos", { headers: { authorization: "Bearer " + localStorage.getItem("token") } })
+      .then((res) => {
+        const todos = res.data.todos;
+        setTodoList(todos);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert("Fetch todo error"));
   }, []);
 
   return (
@@ -81,4 +69,8 @@ function TodoContextProvider(props) {
   );
 }
 
-export { TodoContext, TodoContextProvider };
+const useTodo = () => {
+  return useContext(TodoContext);
+};
+
+export { TodoContext, TodoContextProvider, useTodo };

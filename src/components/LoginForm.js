@@ -1,88 +1,49 @@
-import InputText from "./InputText";
-import Button from "./Button";
-import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import React from "react";
-import Cookies from "universal-cookie";
-import ChbRememberMe from "./ChbRemeberMe";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
-  const [error, setError] = useState({ username: undefined, password: undefined });
-  const [error2, setError2] = useState("");
-  const [btnDisabled, setBtnDisabled] = useState(false);
-
   const navigate = useNavigate();
-  const cookies = new Cookies();
+  const authContext = useAuth();
 
-  const onBlurUsername = () => {
-    if (username.length === 0) setError({ ...error, username: "Please enter your username" });
-    else setError({ ...error, username: undefined });
-  };
-  const onBlurPassword = () => {
-    if (password.length === 0) setError({ ...error, password: "Please enter your password" });
-    else setError({ ...error, password: undefined });
-  };
-
-  const handleLogin = async (ev) => {
+  const handleSubmitForm = async (ev) => {
     ev.preventDefault();
-    const allError = error.username === undefined && error.password === undefined;
-    if (allError) {
-      axios.post("http://localhost:8080/auth/login", { username, password }).then((res) => {
-        if (res.data.login) {
-          setBtnDisabled(true);
-          setError2("");
-          if (remember) {
-            cookies.set("todo_token", res.data.token, { maxAge: 60 * 60 * 24 * 365 });
-            localStorage.setItem("todo_token", res.data.token);
-          } else {
-            cookies.set("todo_token", res.data.token);
-            localStorage.setItem("todo_token", res.data.token);
-          }
-          setBtnDisabled(false);
-          navigate("/todolist");
-        } else {
-          setError2("Username or password wrong!");
-        }
-      });
+    try {
+      const result = await axios.post("http://localhost:8080/auth/login", { username, password });
+      localStorage.setItem("token", result.data.token);
+      authContext.setIsLogged(true);
+      navigate("/");
+    } catch (err) {
+      console.log(err);
     }
   };
 
   return (
-    <form className="w-50 mx-auto border rounded-3  border-primary p-5 mt-5" onSubmit={handleLogin}>
-      <h3 className="mb-5 text-center bold">Login</h3>
-      <InputText
-        name="Username"
-        type="text"
-        state={username}
-        setState={setUsername}
-        error={error.username}
-        onBlur={onBlurUsername}
-      />
-      <InputText
-        name="Password"
-        type="password"
-        state={password}
-        setState={setPassword}
-        error={error.password}
-        onBlur={onBlurPassword}
-      />
-      <ChbRememberMe setState={setRemember} />
-      <Button name="LOGIN" type="submit" disabled={btnDisabled} />
-      {error2 ? (
-        <div className="text-danger">
-          <i className="fa-solid fa-xmark me-2" />
-          {error2}
+    <div className="mx-auto p-4 border border-1 bg-white mt-5 rounded-3 shadow" style={{ maxWidth: 600 }}>
+      <form onSubmit={handleSubmitForm}>
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-control" value={username} onChange={(ev) => setUsername(ev.target.value)} />
         </div>
-      ) : (
-        ""
-      )}
-      <span className="me-2">Need an account?</span>
-      <Link to="/register">Sign up</Link>
-    </form>
+
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            value={password}
+            onChange={(ev) => setPassword(ev.target.value)}
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          Submit
+        </button>
+      </form>
+    </div>
   );
 }
 

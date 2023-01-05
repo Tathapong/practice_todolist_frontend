@@ -1,13 +1,13 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import Button from "../ui/Button";
 import TodoInput from "./TodoInput";
-import { TodoContext } from "../../contexts/TodoContext";
+import { useTodo } from "../../contexts/TodoContext";
 
 function Todo(props) {
   const { id, title, completed } = props;
   const [isEditing, setIsEditing] = useState(false);
 
-  const ctx = useContext(TodoContext);
+  const ctx = useTodo();
 
   const closeEditing = () => {
     setIsEditing(false);
