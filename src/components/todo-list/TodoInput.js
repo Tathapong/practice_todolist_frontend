@@ -1,18 +1,19 @@
 import { useState } from "react";
 import Button from "../ui/Button";
-import { useTodo } from "../../contexts/TodoContext";
+import { useDispatch } from "react-redux";
+import { thunk_createTodo, thunk_updateTodo } from "../../stores/todoSlice";
 
 function TodoInput(props) {
   const [todoInput, setTodoInput] = useState(props.title || "");
   const [todoError, setTodoError] = useState("");
 
-  const ctx = useTodo();
+  const dispatch = useDispatch();
 
-  const handleClickCreateBtn = () => {
+  const handleClickCreateBtn = async () => {
     if (!todoInput) {
       setTodoError("Title is required.");
     } else {
-      ctx.createTodo(todoInput);
+      dispatch(thunk_createTodo(todoInput));
       setTodoError("");
       setTodoInput("");
     }
@@ -22,7 +23,7 @@ function TodoInput(props) {
     if (!todoInput) {
       setTodoError("Title is required.");
     } else {
-      ctx.updateTodo({ title: todoInput, completed: props.completed }, props.id);
+      dispatch(thunk_updateTodo(props.id, { title: todoInput, completed: props.completed }));
       props.closeEditing();
     }
   };

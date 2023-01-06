@@ -4,18 +4,24 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
+import { Provider } from "react-redux";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import { BrowserRouter } from "react-router-dom";
 import { AuthContextProvider } from "./contexts/AuthContext";
 
+import { store } from "./stores/index";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   // <React.StrictMode>
   <BrowserRouter>
     <AuthContextProvider>
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     </AuthContextProvider>
   </BrowserRouter>
   // </React.StrictMode>
